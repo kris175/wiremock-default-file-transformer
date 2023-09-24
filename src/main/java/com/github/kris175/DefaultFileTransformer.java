@@ -37,7 +37,7 @@ public class DefaultFileTransformer implements ResponseDefinitionTransformerV2 {
 
         String defaultFileName = jsonBody.get("defaultFileName").textValue();
 
-        String requestedBodyFileName = jsonBody.get("requestBodyFileNameField").textValue();
+        String requestedBodyFileName = jsonBody.get("requestBodyFileName").textValue();
         String fullFileName = getFileName(requestedBodyFileName, serveEvent.getRequest().getBodyAsString());
 
         // TODO: Iterate through all folders and check if file exists
