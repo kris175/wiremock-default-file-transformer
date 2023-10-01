@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.kris175.DefaultFileTransformer;
 import org.apache.commons.io.FileUtils;
 
+import javax.management.InvalidAttributeValueException;
 import java.io.File;
 import java.util.Collection;
 import java.util.Optional;
@@ -13,21 +14,24 @@ import java.util.logging.Logger;
 public class CommonUtils {
     private static final Logger LOGGER = Logger.getLogger(DefaultFileTransformer.class.getName());
     private static final String ROOT = "__files/";
-    public static String getFileName(String requestedBodyFileName, String requestBody) {
-        String fieldValue = null;
+    private static final String PRE_BOUNDARY_CHAR = "{";
+    private static final String POST_BOUNDARY_CHAR = "}";
+    public static String getFileName(String requestedBodyFileName, JsonNode requestBody) throws InvalidAttributeValueException {
+        // TODO: Enable multilevel json field search for multiple instances
+        JsonNode jsonFieldNode = null;
 
-        String prePaddingText = requestedBodyFileName.substring(0, requestedBodyFileName.indexOf("{"));
-        String fileNameField = requestedBodyFileName.substring(requestedBodyFileName.indexOf("{") + 1, requestedBodyFileName.indexOf("}"));
-        String postPaddingText = requestedBodyFileName.substring(requestedBodyFileName.indexOf("}") + 1);
+        String prePaddingText = requestedBodyFileName.substring(0, requestedBodyFileName.indexOf(PRE_BOUNDARY_CHAR));
+        String postPaddingText = requestedBodyFileName.substring(requestedBodyFileName.indexOf(POST_BOUNDARY_CHAR) + 1);
+        String fileNameField = requestedBodyFileName.substring(requestedBodyFileName.indexOf(PRE_BOUNDARY_CHAR) + 1, requestedBodyFileName.indexOf(POST_BOUNDARY_CHAR));
 
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode jsonNode = mapper.readTree(requestBody);
-            fieldValue = jsonNode.get(fileNameField).textValue();
-        } catch (Exception e) {
-            LOGGER.info("Error");
+        jsonFieldNode = requestBody.findValue(fileNameField);
+
+        if (jsonFieldNode == null) {
+            throw new InvalidAttributeValueException("Field value does not exists in Json Body");
+        } else {
+            String fieldValue = jsonFieldNode.textValue();
+            return prePaddingText + fieldValue + postPaddingText;
         }
-        return prePaddingText + fieldValue + postPaddingText;
     }
 
     public static Optional<String> getFullFilePath(String fileName){
