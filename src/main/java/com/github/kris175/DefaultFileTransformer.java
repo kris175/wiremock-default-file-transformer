@@ -37,8 +37,8 @@ public class DefaultFileTransformer implements ResponseDefinitionTransformerV2 {
     }
 
     private ResponseDefinition serveDefaultResponse(JsonNode jsonBody, ResponseDefinition responseDefinition){
-        if (jsonBody.hasNonNull(DEFAULT_FILE_NAME_KEY)) {
-            String defaultResponseFileName = jsonBody.get(DEFAULT_FILE_NAME_KEY).textValue();
+        if (jsonBody.hasNonNull(DEFAULT_FILE_NAME)) {
+            String defaultResponseFileName = jsonBody.get(DEFAULT_FILE_NAME).textValue();
             Optional<String> defaultResponseFilePath = CommonUtils.getFullFilePathOf(defaultResponseFileName);
             if (defaultResponseFilePath.isPresent()) {
                 return getResponseWithBodyFileName(defaultResponseFilePath.get(), responseDefinition);

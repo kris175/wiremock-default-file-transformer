@@ -47,8 +47,10 @@ public class CommonUtils {
 
             Collection<File> files = FileUtils.listFiles(new File(ROOT), null, recursive);
             for (File file : files) {
-                if (file.getName().equals(fileName))
+                if (file.getName().equals(fileName)){
                     absolutePath = file.getPath();
+                    absolutePath = absolutePath.replace("__files/","");
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();

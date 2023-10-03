@@ -10,7 +10,7 @@ public class CommonUtilsTest {
     @Test
     public void getFullFilePath_mustReturnCorrect() {
         Optional<String> absolutePath = CommonUtils.getFullFilePathOf("helloEarth.txt");
-        assertEquals("data/sampleResponses/helloEarth.txt", absolutePath.orElse(null));
+        assertEquals("sampleResponses/helloEarth.txt", absolutePath.orElse(null));
     }
 
     @Test
