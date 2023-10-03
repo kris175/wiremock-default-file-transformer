@@ -29,7 +29,7 @@ public class CommonUtils {
             JsonNode jsonNode = mapper.readTree(requestBody);
             jsonFieldNode = jsonNode.findValue(fileNameField);
         } catch (Exception e) {
-            LOGGER.info("Error");
+            LOGGER.info("Error, field not found in body");
         }
 
         if (jsonFieldNode == null) {
@@ -40,7 +40,7 @@ public class CommonUtils {
         }
     }
 
-    public static Optional<String> getFullFilePath(String fileName){
+    public static Optional<String> getFullFilePathOf(String fileName){
         String absolutePath = null;
         try {
             boolean recursive = true;

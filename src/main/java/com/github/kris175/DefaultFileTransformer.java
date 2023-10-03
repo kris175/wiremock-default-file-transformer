@@ -1,53 +1,67 @@
 package com.github.kris175;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.kris175.utils.CommonUtils;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformerV2;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 
-import java.util.logging.Logger;
+import javax.management.InvalidAttributeValueException;
+import java.util.Optional;
+
+import static com.github.kris175.utils.Constants.*;
 
 public class DefaultFileTransformer implements ResponseDefinitionTransformerV2 {
-
-    private static final String DEFAULT_FILE_NAME_KEY = "defaultFileName";
-    private static final String REQUESTED_FILE_NAME_KEY = "requestBodyFileName";
 
     @Override
     public ResponseDefinition transform(ServeEvent serveEvent) {
         ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
-        JsonNode jsonBody = responseDefinition.getJsonBody();
+        JsonNode inputJsonBody = responseDefinition.getJsonBody();
+        String requestBody = serveEvent.getRequest().getBodyAsString();
 
-        /*
-          Check if requested body file name is present and has value
-          If yes:
-            - Iterate through files to check if the file exists
-            - If found return that file
-            - else proceed to the parent else case
-           else:
-            - check if default file name is present and has value
-            - If yes:
-                - Iterate through files to check if the file exists
-                - If found return that file
-                - else proceed to the parent else case
-            - else:
-                - return with body "Requested file could not be found. Default response could not be served as either the file does not exist or path is not provided"
-
-         */
-
-        if (jsonBody.has(REQUESTED_FILE_NAME_KEY) && !jsonBody.get(REQUESTED_FILE_NAME_KEY).textValue().isEmpty()){
-            
-        } else if (jsonBody.has(DEFAULT_FILE_NAME_KEY) && !jsonBody.get(DEFAULT_FILE_NAME_KEY).textValue().isEmpty()){
-
+        if (inputJsonBody.hasNonNull(REQUESTED_BODY_FILE_NAME)) {
+            String pathToFileName = inputJsonBody.get(REQUESTED_BODY_FILE_NAME).textValue();
+            try {
+                String fileName = CommonUtils.getFileName(pathToFileName, requestBody);
+                Optional<String> requestedBodyFilePath = CommonUtils.getFullFilePathOf(fileName);
+                if (requestedBodyFilePath.isPresent()){
+                    return getResponseWithBodyFileName(requestedBodyFilePath.get(), responseDefinition);
+                }
+            } catch (InvalidAttributeValueException e) {
+                System.out.println(e.getMessage());
+            }
         }
 
+        return serveDefaultResponse(inputJsonBody, responseDefinition);
+    }
+
+    private ResponseDefinition serveDefaultResponse(JsonNode jsonBody, ResponseDefinition responseDefinition){
+        if (jsonBody.hasNonNull(DEFAULT_FILE_NAME_KEY)) {
+            String defaultResponseFileName = jsonBody.get(DEFAULT_FILE_NAME_KEY).textValue();
+            Optional<String> defaultResponseFilePath = CommonUtils.getFullFilePathOf(defaultResponseFileName);
+            if (defaultResponseFilePath.isPresent()) {
+                return getResponseWithBodyFileName(defaultResponseFilePath.get(), responseDefinition);
+            }
+        }
+        return getNoFileFoundResponse(responseDefinition);
+    }
+
+    private ResponseDefinition getResponseWithBodyFileName(String fullFilePath, ResponseDefinition responseDefinition) {
         return ResponseDefinitionBuilder
                 .like(responseDefinition)
                 .but()
                 .withJsonBody(null)
-                .withBody("Requested file could not be found. Default response could not be served as either the file does not exist or path is not provided.")
+                .withBodyFile(fullFilePath)
+                .build();
+    }
+
+    private ResponseDefinition getNoFileFoundResponse(ResponseDefinition responseDefinition) {
+        return ResponseDefinitionBuilder
+                .like(responseDefinition)
+                .but()
+                .withJsonBody(null)
+                .withBody(NO_FILE_FOUND_MESSAGE)
                 .build();
     }
 
