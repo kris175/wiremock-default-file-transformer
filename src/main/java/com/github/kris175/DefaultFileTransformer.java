@@ -29,6 +29,7 @@ public class DefaultFileTransformer implements ResponseDefinitionTransformerV2 {
                     return getResponseWithBodyFileName(requestedBodyFilePath.get(), responseDefinition);
                 }
             } catch (InvalidAttributeValueException e) {
+                // TODO - add logging
                 System.out.println(e.getMessage());
             }
         }
