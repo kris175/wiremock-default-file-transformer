@@ -25,7 +25,7 @@ public class DefaultFileTransformer implements ResponseDefinitionTransformerV2 {
             try {
                 String fileName = CommonUtils.getFileName(pathToFileName, requestBody);
                 Optional<String> requestedBodyFilePath = CommonUtils.getFullFilePathOf(fileName);
-                if (requestedBodyFilePath.isPresent()){
+                if (requestedBodyFilePath.isPresent()) {
                     return getResponseWithBodyFileName(requestedBodyFilePath.get(), responseDefinition);
                 }
             } catch (InvalidAttributeValueException e) {
@@ -37,7 +37,7 @@ public class DefaultFileTransformer implements ResponseDefinitionTransformerV2 {
         return serveDefaultResponse(inputJsonBody, responseDefinition);
     }
 
-    private ResponseDefinition serveDefaultResponse(JsonNode jsonBody, ResponseDefinition responseDefinition){
+    private ResponseDefinition serveDefaultResponse(JsonNode jsonBody, ResponseDefinition responseDefinition) {
         if (jsonBody.hasNonNull(DEFAULT_FILE_NAME)) {
             String defaultResponseFileName = jsonBody.get(DEFAULT_FILE_NAME).textValue();
             Optional<String> defaultResponseFilePath = CommonUtils.getFullFilePathOf(defaultResponseFileName);
