@@ -6,12 +6,14 @@ import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformerV2;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.management.InvalidAttributeValueException;
 import java.util.Optional;
 
 import static com.github.kris175.utils.Constants.*;
 
+@Slf4j
 public class DefaultFileTransformer implements ResponseDefinitionTransformerV2 {
 
     @Override
@@ -29,8 +31,7 @@ public class DefaultFileTransformer implements ResponseDefinitionTransformerV2 {
                     return getResponseWithBodyFileName(requestedBodyFilePath.get(), responseDefinition);
                 }
             } catch (InvalidAttributeValueException e) {
-                // TODO - add logging
-                System.out.println(e.getMessage());
+                log.error(e.getMessage());
             }
         }
 

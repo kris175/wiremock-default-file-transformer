@@ -25,9 +25,10 @@ public class CommonUtils {
 
         JsonNode jsonFieldNode = null;
         try {
+            // TODO Look into factory instance
             ObjectMapper mapper = new ObjectMapper();
             JsonNode jsonNode = mapper.readTree(requestBody);
-            jsonFieldNode = jsonNode.findValue(fileNameField);
+            jsonFieldNode = jsonNode.findValue(fileNameField); // Change this to a boolean function
         } catch (Exception e) {
             LOGGER.info("Error, field not found in body");
         }
