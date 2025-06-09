@@ -28,13 +28,13 @@ public class CommonUtils {
             // TODO Look into factory instance
             ObjectMapper mapper = new ObjectMapper();
             JsonNode jsonNode = mapper.readTree(requestBody);
-            jsonFieldNode = jsonNode.findValue(fileNameField); // Change this to a boolean function
+            jsonFieldNode = jsonNode.findValue(fileNameField);
         } catch (Exception e) {
             LOGGER.info("Error, field not found in body");
         }
 
         if (jsonFieldNode == null) {
-            throw new InvalidAttributeValueException("Field value does not exists in Json Body");
+            throw new InvalidAttributeValueException("Field value does not exists in JSON Body");
         } else {
             String fieldValue = jsonFieldNode.textValue();
             return prePaddingText + fieldValue + postPaddingText;

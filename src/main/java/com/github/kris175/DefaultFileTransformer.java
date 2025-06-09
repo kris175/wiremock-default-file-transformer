@@ -34,7 +34,6 @@ public class DefaultFileTransformer implements ResponseDefinitionTransformerV2 {
                 log.error(e.getMessage());
             }
         }
-
         return serveDefaultResponse(inputJsonBody, responseDefinition);
     }
 
